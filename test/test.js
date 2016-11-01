@@ -134,3 +134,14 @@ test.cb('Future::ap - for a Future e (a -> b) and a Future e a, returns a Future
     t.end();
   });
 });
+
+test.cb('Future.of - takes a value `a` and returns a `Future a`', (t) => {
+  const f = Future.of(10);
+
+  t.true(f instanceof Future);
+
+  f.fork(identity, (value) => {
+    t.is(value, 10);
+    t.end();
+  });
+});
