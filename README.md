@@ -18,3 +18,5 @@ To learn about Futures and how they work.
 1. Future.prototype.fork - should run Future, accepting a reject and resolve handler
 
 2. Future.prototype.map - for `Future a`, should accept a function `a -> b` and return a `Future b`
+
+3. Future.prototype.chain - for `Future a`, should accept a function `a -> Future b` and return a `Future b`
