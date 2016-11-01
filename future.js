@@ -10,6 +10,11 @@ export default class Future {
       this.fork(reject, x => resolve(f(x))));
   }
 
+  chain(f) {
+    return new Future((reject, resolve) =>
+      this.fork(reject, x => f(x).fork(reject, resolve)));
+  }
+
   fork(reject, resolve) {
     this.__f(reject, resolve);
   }
