@@ -2,7 +2,7 @@
   "name": "future-example",
   "version": "1.0.0",
   "description": "An implementation of a Future in JavaScript",
-  "main": "index.js",
+  "main": "future.js",
   "scripts": {
     "lint": "eslint './**/*.js'",
     "precommit": "npm run lint && npm test",
