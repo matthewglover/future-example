@@ -16,3 +16,5 @@ To learn about Futures and how they work.
 ## Requirements
 
 1. Future.prototype.fork - should run Future, accepting a reject and resolve handler
+
+2. Future.prototype.map - for `Future a`, should accept a function `a -> b` and return a `Future b`

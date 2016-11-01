@@ -36,3 +36,27 @@ test.cb('Future::fork - executes future, receiving rejected value to onReject ha
     t.end();
   });
 });
+
+test.cb('Future::map - for a Future e a and a function a -> b, returns a Future e b (resolving)', (t) => {
+  const fa = new Future(resolvingAsync(10));
+  const fb = fa.map(x => x * 2);
+
+  t.true(fb instanceof Future);
+
+  fb.fork(identity, (value) => {
+    t.is(value, 20);
+    t.end();
+  });
+});
+
+test.cb('Future::map - for a Future e a and a function a -> b, returns a Future e b (rejecting)', (t) => {
+  const fa = new Future(rejectingAsync(testError));
+  const fb = fa.map(x => x * 2);
+
+  t.true(fb instanceof Future);
+
+  fb.fork((error) => {
+    t.is(error, testError);
+    t.end();
+  });
+});
