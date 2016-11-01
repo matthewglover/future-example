@@ -61,6 +61,42 @@ test.cb('Future::map - for a Future e a and a function a -> b, returns a Future 
   });
 });
 
+test.cb('Future::chain - for a Future e a and a function a -> Future e b, returns a Future e b (resolving)', (t) => {
+  const fa = new Future(resolvingAsync(10));
+  const fb = fa.chain(x => new Future(resolvingAsync(x * 2)));
+
+  t.true(fb instanceof Future);
+
+  fb.fork(identity, (value) => {
+    t.is(value, 20);
+    t.end();
+  });
+});
+
+test.cb('Future::chain - for a Future e a and a function a -> Future e b, returns a Future e b (1st rejecting)', (t) => {
+  const fa = new Future(rejectingAsync(testError));
+  const fb = fa.chain(x => new Future(resolvingAsync(x * 2)));
+
+  t.true(fb instanceof Future);
+
+  fb.fork((error) => {
+    t.is(error, testError);
+    t.end();
+  });
+});
+
+test.cb('Future::chain - for a Future e a and a function a -> Future e b, returns a Future e b (2nd rejecting)', (t) => {
+  const fa = new Future(resolvingAsync(10));
+  const fb = fa.chain(() => new Future(rejectingAsync(testError)));
+
+  t.true(fb instanceof Future);
+
+  fb.fork((error) => {
+    t.is(error, testError);
+    t.end();
+  });
+});
+
 test.cb('Future::ap - for a Future e (a -> b) and a Future e a, returns a Future e b (resolving)', (t) => {
   const double = x => x * 2;
   const fa = new Future(resolvingAsync(double));
