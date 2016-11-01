@@ -24,3 +24,5 @@ export default class Future {
     this.__f(reject, resolve);
   }
 }
+
+Future.of = x => new Future((reject, resolve) => resolve(x));
