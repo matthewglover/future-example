@@ -15,6 +15,11 @@ export default class Future {
       this.fork(reject, x => f(x).fork(reject, resolve)));
   }
 
+  ap(fx) {
+    return new Future((reject, resolve) =>
+      this.fork(reject, f => fx.fork(reject, x => resolve(f(x)))));
+  }
+
   fork(reject, resolve) {
     this.__f(reject, resolve);
   }
