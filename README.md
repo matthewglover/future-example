@@ -26,3 +26,5 @@ To learn about Futures and how they work.
 5. Future.of - takes a value `a` and returns a `Future a`
 
 6. Synchronous errors - add handling of synchronous errors in map and chain and ap
+
+7. Refactor map to chain - declare map in terms of chain
