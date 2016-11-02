@@ -1,4 +1,14 @@
 
+const tryCatch = (errorHandler, f) => (x) => {
+  try {
+    f(x);
+  } catch (error) {
+    errorHandler(error);
+  }
+};
+
+const compose = (f, g) => x => f(g(x));
+
 export default class Future {
 
   constructor(f) {
@@ -7,17 +17,27 @@ export default class Future {
 
   map(f) {
     return new Future((reject, resolve) =>
-      this.fork(reject, x => resolve(f(x))));
+      this.fork(
+        reject,
+        tryCatch(reject, compose(resolve, f))
+      ));
   }
 
   chain(f) {
     return new Future((reject, resolve) =>
-      this.fork(reject, x => f(x).fork(reject, resolve)));
+      this.fork(
+        reject,
+        tryCatch(reject, x => f(x).fork(reject, resolve))
+      ));
   }
 
   ap(fx) {
     return new Future((reject, resolve) =>
-      this.fork(reject, f => fx.fork(reject, x => resolve(f(x)))));
+      this.fork(
+        reject,
+        f => fx.fork(
+          reject,
+          tryCatch(reject, x => resolve(f(x))))));
   }
 
   fork(reject, resolve) {
