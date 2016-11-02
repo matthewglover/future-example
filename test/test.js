@@ -185,3 +185,14 @@ test.cb('Future.of - takes a value `a` and returns a `Future a`', (t) => {
     t.end();
   });
 });
+
+test.cb('Future.reject - takes an error `e` and returns a `Future e`', (t) => {
+  const f = Future.reject(testError);
+
+  t.true(f instanceof Future);
+
+  f.fork((error) => {
+    t.is(error, testError);
+    t.end();
+  });
+});
