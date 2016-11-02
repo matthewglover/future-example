@@ -23,8 +23,10 @@ To learn about Futures and how they work.
 
 4. Future.prototype.ap - for `Future (a -> b)`, should accept a `Future a` and return a `Future b`
 
-5. Future.of - takes a value `a` and returns a `Future a`
+5. Future.of - takes a value `a` and returns a resolving `Future a`
 
 6. Synchronous errors - add handling of synchronous errors in map and chain and ap
 
 7. Refactor map to chain - declare map in terms of chain
+
+8. Future.reject - takes an error `e` and returns a rejecting `Future e`
