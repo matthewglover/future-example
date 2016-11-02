@@ -32,7 +32,7 @@ export default class Future {
         reject,
         f => fx.fork(
           reject,
-          tryCatch(reject, x => resolve(f(x))))));
+          tryCatch(reject, compose(resolve, f)))));
   }
 
   fork(reject, resolve) {

@@ -30,3 +30,5 @@ To learn about Futures and how they work.
 7. Refactor map to chain - declare map in terms of chain
 
 8. Future.reject - takes an error `e` and returns a rejecting `Future e`
+
+9. Refactor code
