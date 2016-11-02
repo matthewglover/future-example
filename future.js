@@ -40,23 +40,6 @@ export default class Future {
           tryCatch(reject, x => resolve(f(x))))));
   }
 
-  // ap(fx) {
-  //   console.log('booo');
-  //   return new Future((reject, resolve) =>
-  //     this.fork(
-  //       reject,
-  //       (f) => {
-  //         fx.fork(
-  //           reject,
-  //           tryCatch(reject, (x) => {
-  //             console.log('-------------------->', x);
-  //             resolve(f(x));
-  //           })
-  //         );
-  //       }
-  //     ));
-  // }
-
   fork(reject, resolve) {
     this.__f(reject, resolve);
   }
