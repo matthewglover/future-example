@@ -16,19 +16,14 @@ export default class Future {
   }
 
   map(f) {
-    return new Future((reject, resolve) =>
-      this.fork(
-        reject,
-        tryCatch(reject, compose(resolve, f))
-      ));
+    return this.chain(compose(Future.of, f));
   }
 
   chain(f) {
     return new Future((reject, resolve) =>
       this.fork(
         reject,
-        tryCatch(reject, x => f(x).fork(reject, resolve))
-      ));
+        tryCatch(reject, x => f(x).fork(reject, resolve))));
   }
 
   ap(fx) {
