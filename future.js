@@ -41,3 +41,5 @@ export default class Future {
 }
 
 Future.of = x => new Future((reject, resolve) => resolve(x));
+
+Future.reject = error => new Future(reject => reject(error));
