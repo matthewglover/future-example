@@ -61,6 +61,19 @@ test.cb('Future::map - for a Future e a and a function a -> b, returns a Future 
   });
 });
 
+test.cb('Future::map - for a Future e a and a function a -> b, returns a Future e b (rejecting)', (t) => {
+  const fa = new Future(resolvingAsync(10));
+  const fb = fa.map(() => {
+    throw testError;
+  });
+
+  t.true(fb instanceof Future);
+  fb.fork((error) => {
+    t.is(error, testError);
+    t.end();
+  });
+});
+
 test.cb('Future::chain - for a Future e a and a function a -> Future e b, returns a Future e b (resolving)', (t) => {
   const fa = new Future(resolvingAsync(10));
   const fb = fa.chain(x => new Future(resolvingAsync(x * 2)));
@@ -97,6 +110,19 @@ test.cb('Future::chain - for a Future e a and a function a -> Future e b, return
   });
 });
 
+test.cb('Future::chain - for a Future e a and a function a -> Future b, returns a Future e b (rejecting)', (t) => {
+  const fa = new Future(resolvingAsync(10));
+  const fb = fa.chain(() => {
+    throw testError;
+  });
+
+  t.true(fb instanceof Future);
+  fb.fork((error) => {
+    t.is(error, testError);
+    t.end();
+  });
+});
+
 test.cb('Future::ap - for a Future e (a -> b) and a Future e a, returns a Future e b (resolving)', (t) => {
   const double = x => x * 2;
   const fa = new Future(resolvingAsync(double));
@@ -126,6 +152,20 @@ test.cb('Future::ap - for a Future e (a -> b) and a Future e a, returns a Future
   const double = x => x * 2;
   const fa = new Future(resolvingAsync(double));
   const fb = fa.ap(new Future(rejectingAsync(testError)));
+
+  t.true(fb instanceof Future);
+
+  fb.fork((error) => {
+    t.is(error, testError);
+    t.end();
+  });
+});
+
+test.cb('Future::ap - for a Future e (a -> b) and a Future e a, returns a Future e b (Future e (a -> b) rejecting)', (t) => {
+  const fa = Future.of(() => {
+    throw testError;
+  });
+  const fb = fa.ap(Future.of(10));
 
   t.true(fb instanceof Future);
 
