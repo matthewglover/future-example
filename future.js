@@ -9,6 +9,16 @@ const tryCatch = (errorHandler, f) => (x) => {
 
 const compose = (f, g) => x => f(g(x));
 
+const runOnce = (f) => {
+  let hasRun = false;
+  return (...args) => {  // eslint-disable-line consistent-return
+    if (!hasRun) {
+      hasRun = true;
+      return f(...args);
+    }
+  };
+};
+
 export default class Future {
 
   constructor(f) {
@@ -27,12 +37,41 @@ export default class Future {
   }
 
   ap(fx) {
-    return new Future((reject, resolve) =>
-      this.fork(
-        reject,
-        f => fx.fork(
-          reject,
-          tryCatch(reject, compose(resolve, f)))));
+    return new Future((reject, resolve) => {
+      let isRejected = false;
+      let fnReady = false;
+      let valueReady = false;
+      let fn;
+      let value;
+
+      const rejectOnce = runOnce((error) => {
+        isRejected = true;
+        reject(error);
+      });
+
+      const tryRun = () => {
+        if (fnReady && valueReady) {
+          resolve(fn(value));
+        }
+      };
+
+      const resolveFn = (f) => {
+        if (isRejected) return;
+        fnReady = true;
+        fn = f;
+        tryRun();
+      };
+
+      const resolveVal = (v) => {
+        if (isRejected) return;
+        valueReady = true;
+        value = v;
+        tryRun();
+      };
+
+      this.fork(rejectOnce, tryCatch(rejectOnce, resolveFn));
+      fx.fork(rejectOnce, tryCatch(rejectOnce, resolveVal));
+    });
   }
 
   fork(reject, resolve) {
