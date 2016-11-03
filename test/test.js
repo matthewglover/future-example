@@ -4,7 +4,10 @@ import Future from '../future';
 const identity = x => x;
 
 const resolvingAsync = (v, delay = 1) => ((reject, resolve) => {
-  setTimeout(() => resolve(v), delay);
+  setTimeout(() => {
+    // console.log('Resolving', v, Date.now());
+    resolve(v);
+  }, delay);
 });
 
 const rejectingAsync = (e, delay = 1) => ((reject) => {
@@ -37,7 +40,7 @@ test.cb('Future::fork - executes future, receiving rejected value to onReject ha
   });
 });
 
-test.cb('Future::map - for a Future e a and a function a -> b, returns a Future e b (resolving)', (t) => {
+test.cb('Future::map - (Future e a).map(a -> b) -> Future e b (resolving)', (t) => {
   const fa = new Future(resolvingAsync(10));
   const fb = fa.map(x => x * 2);
 
@@ -49,7 +52,7 @@ test.cb('Future::map - for a Future e a and a function a -> b, returns a Future 
   });
 });
 
-test.cb('Future::map - for a Future e a and a function a -> b, returns a Future e b (rejecting)', (t) => {
+test.cb('Future::map - (Future e a).map(a -> b) -> Future e b (rejecting)', (t) => {
   const fa = new Future(rejectingAsync(testError));
   const fb = fa.map(x => x * 2);
 
@@ -61,7 +64,7 @@ test.cb('Future::map - for a Future e a and a function a -> b, returns a Future 
   });
 });
 
-test.cb('Future::map - for a Future e a and a function a -> b, returns a Future e b (rejecting)', (t) => {
+test.cb('Future::map - (Future e a).map(a -> b) -> Future e b (rejecting)', (t) => {
   const fa = new Future(resolvingAsync(10));
   const fb = fa.map(() => {
     throw testError;
@@ -74,7 +77,7 @@ test.cb('Future::map - for a Future e a and a function a -> b, returns a Future 
   });
 });
 
-test.cb('Future::chain - for a Future e a and a function a -> Future e b, returns a Future e b (resolving)', (t) => {
+test.cb('Future::chain - (Future e a).chain(a -> Future e b) -> Future e b (resolving)', (t) => {
   const fa = new Future(resolvingAsync(10));
   const fb = fa.chain(x => new Future(resolvingAsync(x * 2)));
 
@@ -86,7 +89,7 @@ test.cb('Future::chain - for a Future e a and a function a -> Future e b, return
   });
 });
 
-test.cb('Future::chain - for a Future e a and a function a -> Future e b, returns a Future e b (1st rejecting)', (t) => {
+test.cb('Future::chain - (Future e a).map(a -> Future e b) -> Future e b (1st rejecting)', (t) => {
   const fa = new Future(rejectingAsync(testError));
   const fb = fa.chain(x => new Future(resolvingAsync(x * 2)));
 
@@ -98,7 +101,7 @@ test.cb('Future::chain - for a Future e a and a function a -> Future e b, return
   });
 });
 
-test.cb('Future::chain - for a Future e a and a function a -> Future e b, returns a Future e b (2nd rejecting)', (t) => {
+test.cb('Future::chain - (Future e a).chain(a -> Future e b) -> Future e b (2nd rejecting)', (t) => {
   const fa = new Future(resolvingAsync(10));
   const fb = fa.chain(() => new Future(rejectingAsync(testError)));
 
@@ -110,7 +113,7 @@ test.cb('Future::chain - for a Future e a and a function a -> Future e b, return
   });
 });
 
-test.cb('Future::chain - for a Future e a and a function a -> Future b, returns a Future e b (rejecting)', (t) => {
+test.cb('Future::chain - (Future e a).chain(a -> Future e b) -> Future e b (rejecting)', (t) => {
   const fa = new Future(resolvingAsync(10));
   const fb = fa.chain(() => {
     throw testError;
@@ -123,7 +126,7 @@ test.cb('Future::chain - for a Future e a and a function a -> Future b, returns 
   });
 });
 
-test.cb('Future::ap - for a Future e (a -> b) and a Future e a, returns a Future e b (resolving)', (t) => {
+test.cb('Future::ap - (Future e (a -> b)).ap(Future e a) -> Future e b (resolving)', (t) => {
   const double = x => x * 2;
   const fa = new Future(resolvingAsync(double));
   const fb = fa.ap(new Future(resolvingAsync(10)));
@@ -136,7 +139,7 @@ test.cb('Future::ap - for a Future e (a -> b) and a Future e a, returns a Future
   });
 });
 
-test.cb('Future::ap - for a Future e (a -> b) and a Future e a, returns a Future e b (1st rejecting)', (t) => {
+test.cb('Future::ap - (Future e (a -> b)).ap(Future e a) -> Future e b (1st rejecting)', (t) => {
   const fa = new Future(rejectingAsync(testError));
   const fb = fa.ap(new Future(resolvingAsync(10)));
 
@@ -148,7 +151,7 @@ test.cb('Future::ap - for a Future e (a -> b) and a Future e a, returns a Future
   });
 });
 
-test.cb('Future::ap - for a Future e (a -> b) and a Future e a, returns a Future e b (2nd rejecting)', (t) => {
+test.cb('Future::ap - (Future e (a -> b)).ap(Future e a) -> Future e b (2nd rejecting)', (t) => {
   const double = x => x * 2;
   const fa = new Future(resolvingAsync(double));
   const fb = fa.ap(new Future(rejectingAsync(testError)));
@@ -161,7 +164,7 @@ test.cb('Future::ap - for a Future e (a -> b) and a Future e a, returns a Future
   });
 });
 
-test.cb('Future::ap - for a Future e (a -> b) and a Future e a, returns a Future e b (Future e (a -> b) rejecting)', (t) => {
+test.cb('Future::ap - (Future e (a -> b)).ap(Future e a) -> Future e b (Future e (a -> b) rejecting)', (t) => {
   const fa = Future.of(() => {
     throw testError;
   });
@@ -175,7 +178,34 @@ test.cb('Future::ap - for a Future e (a -> b) and a Future e a, returns a Future
   });
 });
 
-test.cb('Future.of - takes a value `a` and returns a `Future a`', (t) => {
+test.cb('Future::ap - (Future e (a -> b)).ap(Future e a) -> Future e b (Future e (a -> b) rejecting)', (t) => {
+  const fa = Future.of(a => b => [a, b]);
+  const fb = fa.ap(Future.of(10)).ap(Future.of(20));
+
+  t.true(fb instanceof Future);
+
+  fb.fork(identity, (x) => {
+    t.deepEqual(x, [10, 20]);
+    t.end();
+  });
+});
+
+test.cb('Future::ap - (Future e (a -> b -> [a, b])).ap(Future e a).ap(Future e b) -> Future e [a, b], resolves in parallel (parallelism)', (t) => {
+  const fa = Future.of(a => b => [a, b]);
+  const fb = new Future(resolvingAsync(10, 1800));
+  const fc = new Future(resolvingAsync(20, 1000));
+  const fd = fa.ap(fb).ap(fc);
+  t.plan(3);
+  t.true(fd instanceof Future);
+  const startTime = Date.now();
+  fd.fork(identity, (x) => {
+    t.deepEqual(x, [10, 20]);
+    t.true(Date.now() - startTime < 2000);
+    t.end();
+  });
+});
+
+test.cb('Future.of(a) -> Future e a', (t) => {
   const f = Future.of(10);
 
   t.true(f instanceof Future);
@@ -186,7 +216,7 @@ test.cb('Future.of - takes a value `a` and returns a `Future a`', (t) => {
   });
 });
 
-test.cb('Future.reject - takes an error `e` and returns a `Future e`', (t) => {
+test.cb('Future.reject(e) -> Future e', (t) => {
   const f = Future.reject(testError);
 
   t.true(f instanceof Future);
