@@ -32,3 +32,5 @@ To learn about Futures and how they work.
 8. Future.reject - takes an error `e` and returns a rejecting `Future e`
 
 9. Refactor code
+
+10. Future.prototype.ap - for `(Future (a -> b -> [a, b])).ap(Future e a).ap(Future e b) -> Future e [a, b]`, where `Future e b` resolves after `Future e a` and `Future e a` and `Future e b` are executed in parallel.
